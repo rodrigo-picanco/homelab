@@ -1,0 +1,45 @@
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    environment:
+      - TZ=Europe/Madrid
+    volumes:
+      - ~/pihole/etc-pihole:/etc/pihole
+      - ~/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    depends_on: 
+      - dhcphelper
+    networks: 
+      - backend
+    ports: 
+        - 53:53/tcp
+        - 53:53/udp
+        - 9000:80/tcp
+  dhcphelper:
+    network_mode: host
+    restart: unless-stopped
+    container_name: dhcphelper
+    image: homeall/dhcphelper:latest
+    cap_add:
+      - NET_ADMIN
+  ntfy:
+    image: binwiederhier/ntfy
+    container_name: ntfy
+    environment:
+      NTFY_UPSTREAM_BASE_URL: https://ntfy.sh  # Necessary for iOS push notification
+      NTFY_BASE_URL: http://192.168.1.31:9001  # Necessary for iOS push notification
+    command:
+      - serve
+    volumes:
+      - /var/cache/ntfy:/var/cache/ntfy
+      - /etc/ntfy:/etc/ntfy
+    ports:
+      - 9001:80
+    restart: unless-stopped
+
+networks:
+  backend:  
+    driver: bridge
