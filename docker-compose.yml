@@ -1,4 +1,18 @@
 services:
+  rauxa:
+    image: golang
+    container_name: rauxa
+    command: >
+      bash -c "
+        git clone https://github.com/rodrigo-picanco/rauxa.git
+        cd rauxa
+        go build
+        ./rauxa
+      "
+    ports:
+      - 9002:8088
+    restart: unless-stopped
+
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
